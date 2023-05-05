@@ -9,7 +9,7 @@ from tensorflow.keras.preprocessing import image
 from tensorflow.keras import regularizers
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
 
-
+from tensorflow.keras import layers,models
 import seaborn as sns  # For statistical visualizations
 import plotly.graph_objs as go  # For interactive visualizations
 import matplotlib.pyplot as plt  # For creating static plots
@@ -20,11 +20,11 @@ import matplotlib.pyplot as plt  # For creating static plots
     
     
     # Define the data directory
-data_dir = 'C:\\Users\\sonic\\Videos\\raw-img'
-val_dir = 'C:\\Users\\sonic\\Videos\\val\\'
+data_dir = 'C:\\Users\\sonic\\Videos\\New folder\\Dataset'
+val_dir = 'C:\\Users\\sonic\\Videos\\New folder\\val2\\'
 # Define the train and test directories
-train_dir = 'C:\\Users\\sonic\\Videos\\train\\'
-test_dir = 'C:\\Users\\sonic\\Videos\\test\\'
+train_dir = 'C:\\Users\\sonic\\Videos\\New folder\\train2\\'
+test_dir = 'C:\\Users\\sonic\\Videos\\New folder\\test2\\'
 
 
 class_names = sorted(os.listdir(data_dir))
@@ -39,10 +39,6 @@ for name in class_names:
 
 print("Class Distribution:\n", class_sizes)
 
-
-
-
-
 data = go.Pie(labels=class_names, values=class_sizes)
 
 # Define the layout
@@ -53,11 +49,6 @@ fig = go.Figure(data=data, layout=layout)
 
 # Display the figure
 fig.show()
-
-
-
-
-
 
 # Plot a bar graph of the number of images in each class
 
@@ -141,7 +132,8 @@ for file, animal in test_data:
 # shuffle=True, 
 # subset='validation')
 
-# test_datagen = ImageDataGenerator(rescale=1./255)
+
+
 
 data_generator = ImageDataGenerator(
 rescale=1./255, 
@@ -149,34 +141,44 @@ horizontal_flip=True,
 vertical_flip=True, 
 rotation_range=20, 
 validation_split=0.2)
+
+test_generator = ImageDataGenerator(
+rescale=1./255, 
+horizontal_flip=True, 
+vertical_flip=True, 
+rotation_range=20)
+
 # Load the data
-train_data = data_generator.flow_from_directory(train_dir,
-                                               target_size=(60,60), 
+#convert , labels
+train_dataGen = data_generator.flow_from_directory(train_dir,
+                                               target_size=(80,80), 
                                                         class_mode='categorical', 
                                                         batch_size=32, 
+                                                        color_mode='rgb',
+                                                        seed=42,
+
                                                         shuffle=True )
                                                         #subset='training')
 
-val_data = data_generator.flow_from_directory(val_dir,
-                                          target_size=(60,60), 
+val_dataGen = data_generator.flow_from_directory(val_dir,
+                                          target_size=(80,80), 
                                                    class_mode='categorical', 
-                                                   batch_size=32, 
+                                                   batch_size=32,
+                                                   color_mode='rgb',
+                                                   seed=42,
+
                                                    shuffle=True )
                                                    #subset='validation')
 
-test_data = data_generator.flow_from_directory(test_dir,
-                                            target_size=(60,60), 
+test_dataGen = test_generator.flow_from_directory(test_dir,
+                                            target_size=(80,80), 
                                                      class_mode='categorical', 
                                                      batch_size=32, 
+                                                     color_mode='rgb',
+                                                     seed=42,
+
                                                      shuffle=True)
                                                      #subset='testing')
-
-# Build
-
-
-
-
-
 
 
 
@@ -207,19 +209,20 @@ test_data = data_generator.flow_from_directory(test_dir,
 
 # Define the model architecture
 model = tf.keras.models.Sequential([
-tf.keras.layers.Conv2D(60, (3, 3), activation='relu', input_shape=(60, 60, 3), padding='valid'),
-tf.keras.layers.BatchNormalization(),
-tf.keras.layers.Conv2D(128, (3, 3), activation='relu', padding='valid', strides=(2, 2)),
-tf.keras.layers.BatchNormalization(),
-tf.keras.layers.Conv2D(256, (3, 3), activation='relu', padding='valid'),
-tf.keras.layers.BatchNormalization(),
-tf.keras.layers.MaxPooling2D((3, 3)),
+tf.keras.layers.Conv2D(64, (4, 4), activation='relu', input_shape=(80, 80, 3), padding='valid'),
+tf.keras.layers.MaxPooling2D(3, 3),
+tf.keras.layers.Conv2D(128, (4, 4), activation='relu', padding='valid'),
+tf.keras.layers.MaxPooling2D(3, 3),
+tf.keras.layers.Conv2D(256, (4, 4), activation='relu', padding='valid'),
+
+tf.keras.layers.MaxPooling2D(3, 3),
 tf.keras.layers.Flatten(),
-tf.keras.layers.Dense(256, activation='relu', kernel_regularizer=regularizers.l1(0.01)),
-tf.keras.layers.BatchNormalization(),
-tf.keras.layers.Dropout(0.5),
-tf.keras.layers.Dense(256, activation='relu', kernel_regularizer=regularizers.l1(0.01)),
-tf.keras.layers.BatchNormalization(),
+tf.keras.layers.Dense(120, activation='relu', kernel_regularizer=regularizers.l1(0.01)),
+#tf.keras.layers.Dropout(0.5),
+tf.keras.layers.Dense(120, activation='relu'),
+
+
+
 tf.keras.layers.Dense(10, activation='softmax')
 ])
 
@@ -230,7 +233,7 @@ model.compile(loss='categorical_crossentropy',
               metrics=['accuracy'])
 
 # Train the model
-history=model.fit(train_data,batch_size=165, epochs=100, validation_data=val_data)
+history=model.fit(train_dataGen,batch_size= 165, epochs=350, validation_data=val_dataGen)
 
 
 
@@ -239,15 +242,15 @@ history=model.fit(train_data,batch_size=165, epochs=100, validation_data=val_dat
 
 
 
-test_loss,test_acc=model.evaluate(test_data)
+test_loss,test_acc=model.evaluate(test_dataGen)
 print("Test Loss:", test_loss)
-print("Test Accuracy:", test_acc)
+print("Test Accuracy: {:.2f}%".format(test_acc* 100))
+    
 
 
 
 
-
-new_image = image.load_img('C:\\Users\\sonic\\Videos\\2.jpeg', target_size=(60, 60))
+new_image = image.load_img('C:\\Users\\sonic\\Videos\\2.jpeg', target_size=(80, 80))
 
 # Convert the image to a numpy array
 new_image = image.img_to_array(new_image)
@@ -265,9 +268,10 @@ prediction = model.predict(new_image)
 predicted_class = np.argmax(prediction)
 
 # Print the predicted class label
-class_labels = list(train_data.class_indices.keys())
+class_labels = list(train_dataGen.class_indices.keys())
 predicted_label = class_labels[predicted_class]
 print(predicted_label)
+
 
 
 

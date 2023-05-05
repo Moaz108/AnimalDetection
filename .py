@@ -83,46 +83,46 @@ plt.show()
 
 
 
-# # Create the train, validation, and test directories if they don't exist
-# os.makedirs(train_dir, exist_ok=True)
-# os.makedirs(val_dir, exist_ok=True)
-# os.makedirs(test_dir, exist_ok=True)
+# Create the train, validation, and test directories if they don't exist
+os.makedirs(train_dir, exist_ok=True)
+os.makedirs(val_dir, exist_ok=True)
+os.makedirs(test_dir, exist_ok=True)
 
-# # Get a list of all the animal type directories
-# animal_dirs = [d for d in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, d))]
+# Get a list of all the animal type directories
+animal_dirs = [d for d in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, d))]
 
-# # Split the data into training, validation, and testing sets
-# train_data = []
-# val_data = []
-# test_data = []
-# for animal_dir in animal_dirs:
-#     animal_dir_path = os.path.join(data_dir, animal_dir)
-#     image_files = [os.path.join(animal_dir_path, f) for f in os.listdir(animal_dir_path) if f.endswith('.jpeg')]
-#     random.shuffle(image_files)
-#     train_files, test_files = train_test_split(image_files, test_size=0.2)
-#     train_files, val_files = train_test_split(train_files, test_size=0.2)
-#     train_data.extend([(f, animal_dir) for f in train_files])
-#     val_data.extend([(f, animal_dir) for f in val_files])
-#     test_data.extend([(f, animal_dir) for f in test_files])
+# Split the data into training, validation, and testing sets
+train_data = []
+val_data = []
+test_data = []
+for animal_dir in animal_dirs:
+    animal_dir_path = os.path.join(data_dir, animal_dir)
+    image_files = [os.path.join(animal_dir_path, f) for f in os.listdir(animal_dir_path) if f.endswith('.jpeg')]
+    random.shuffle(image_files)
+    train_files, test_files = train_test_split(image_files, test_size=0.2)
+    train_files, val_files = train_test_split(train_files, test_size=0.2)
+    train_data.extend([(f, animal_dir) for f in train_files])
+    val_data.extend([(f, animal_dir) for f in val_files])
+    test_data.extend([(f, animal_dir) for f in test_files])
 
-# # Copy the training data to the train directory
-# for file, animal in train_data:
-#     animal_dir_path = os.path.join(train_dir, animal)
-#     os.makedirs(animal_dir_path, exist_ok=True)
-#     shutil.copy(file, animal_dir_path)
+# Copy the training data to the train directory
+for file, animal in train_data:
+    animal_dir_path = os.path.join(train_dir, animal)
+    os.makedirs(animal_dir_path, exist_ok=True)
+    shutil.copy(file, animal_dir_path)
 
-# # Copy the validation data to the val directory
-# for file, animal in val_data:
-#     animal_dir_path = os.path.join(val_dir, animal)
-#     os.makedirs(animal_dir_path, exist_ok=True)
-#     shutil.copy(file, animal_dir_path)
+# Copy the validation data to the val directory
+for file, animal in val_data:
+    animal_dir_path = os.path.join(val_dir, animal)
+    os.makedirs(animal_dir_path, exist_ok=True)
+    shutil.copy(file, animal_dir_path)
 
-# # Copy the testing data to the test directory
-# for file, animal in test_data:
-#     animal_dir_path = os.path.join(test_dir, animal)
-#     os.makedirs(animal_dir_path, exist_ok=True)
-#     shutil.copy(file, animal_dir_path)
-#
+# Copy the testing data to the test directory
+for file, animal in test_data:
+    animal_dir_path = os.path.join(test_dir, animal)
+    os.makedirs(animal_dir_path, exist_ok=True)
+    shutil.copy(file, animal_dir_path)
+
 
 
 #mlhaaash lazma
